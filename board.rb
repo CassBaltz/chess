@@ -1,3 +1,7 @@
+require_relative 'display'
+require_relative 'piece'
+require_relative 'cursorable'
+
 class Board
   attr_reader :grid
 
@@ -15,6 +19,10 @@ class Board
   def []=(pos, piece)
     row, col = pos
     grid[row][col] = piece
+  end
+
+  def rows
+    @grid
   end
 
   def populate
@@ -58,7 +66,6 @@ class Board
   def move(start, end_pos)
     piece_at_start?(start)
     update_board(start, end_pos)
-
   end
 
 
@@ -71,7 +78,7 @@ class Board
 
   def update_board(start, end_pos)
     piece = board[start]
-    valid_moves = valid?(piece.possible_moves)
+    valid_moves = valid?(piece, end_pos)
     if valid_moves.include?(board[end_pos])
       self[end_pos] = piece
       piece.position = [end_pos]
@@ -81,5 +88,11 @@ class Board
     end
   end
 
+  def valid?(piece, end_pos)
+    possible_moves = piece.possible_moves
+  end
 
 end
+
+a = Board.new
+a.render
