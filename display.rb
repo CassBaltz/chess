@@ -3,16 +3,13 @@ require_relative 'cursorable'
 
 class Display
   include Cursorable
+  include Colorize
   attr_reader :board
 
   def initialize(board)
     @board = board
     @cursor_pos = [0, 0]
     @selected = false
-  end
-
-  def update_pos
-
   end
 
   def build_grid
@@ -45,35 +42,41 @@ class Display
     puts "Arrow keys, WASD, or vim to move, space or enter to confirm."
     build_grid.each { |row| puts row.join }
   end
-  # def render
-  #   puts
-  #   @board.each_with_index do |row, r_idx|
-  #     row.each_with_index do |square, sq_idx|
-  #       piece = @board[r_idx][sq_idx]
-  #
-  #   puts
-  #
-  #
-  # end
 
+  def select_piece
+    until @selected && piece_at_start?(@cursor_pos)
+      @selected = false
+      @cursor_pos = get_input
+      render
+    end
+    @selected_piece = board.grid[@cursor_pos[0]][@cursor_pos[1]]
+    board.grid[@cursor_pos[0]][@cursor_pos[1]] = NullPiece.instance
+  end
 
+  def move_piece
+    possible_moves = @selected_piece.moves
+    p "possible moves: "
+    p possible_moves
+    until @selected == false
+      @selected = true
+      @cursor_pos = get_input
+      render
+      unless possible_moves.include?(@cursor_pos)
+        @selected = true
+      end
+    end
+    board.grid[@cursor_pos[0]][@cursor_pos[1]] = @selected_piece
+    if @selected_piece.is_a?(Pawn)
+      unless @selected_piece.position == [@cursor_pos[0], @cursor_pos[1]]
+        @selected_piece.first_move = false
+      end
+    end
+    @selected_piece.position = [@cursor_pos[0], @cursor_pos[1]]
+    render
+  end
 
-  # def draw_board
-  #   @board.each_with_index do |row, r_idx|
-  #     row.each_with_index do |square, sq_idx|
-  #       if r_idx.even?
-  #         if sq_idx.even?
-  #           # color square light
-  #         else
-  #           # color square dark
-  #         end
-  #       else
-  #         if sq_idx.even?
-  #           # color square light
-  #         else
-  #           # color square dark
-  #         end
-  #       end
-  #
-  # end
+  def piece_at_start?(pos)
+    x, y = pos
+    !board[x, y].is_a?(NullPiece)
+  end
 end

@@ -40,11 +40,18 @@ module Cursorable
     case key
     when :ctrl_c
       exit 0
-    when :return, :space
+    when :return
+      @cursor_pos
+    when :space
+      if @selected == false
+        @selected = true
+      else
+        @selected = false
+      end 
       @cursor_pos
     when :left, :right, :up, :down
       update_pos(MOVES[key])
-      nil
+      # nil
     else
       puts key
     end
@@ -68,6 +75,10 @@ module Cursorable
 
   def update_pos(diff)
     new_pos = [@cursor_pos[0] + diff[0], @cursor_pos[1] + diff[1]]
-    @cursor_pos = new_pos if @board.in_bounds?(new_pos)
+    if @board.in_bounds?(new_pos)
+      @cursor_pos = new_pos
+    else
+      return @cursor_pos
+    end
   end
 end
